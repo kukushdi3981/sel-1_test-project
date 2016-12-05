@@ -1,4 +1,5 @@
 import pytest
+import os
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -29,6 +30,7 @@ def logout(driver):
     driver.find_element_by_css_selector("a[title='Logout']").click()
 
 def Open_add_new_product_page(driver):
+    WebDriverWait(driver, 5).until(lambda driver : driver.find_element_by_css_selector("div#box-apps-menu-wrapper"))
     driver.find_element_by_css_selector("div#box-apps-menu-wrapper a[href$=catalog]").click()
 
 #   проверяем появления заголовка страницы после нажатия
@@ -36,20 +38,20 @@ def Open_add_new_product_page(driver):
 
     driver.find_element_by_css_selector("div a[href$=edit_product]").click()
 
-def Create_new_product(driver):
+def Create_new_product(driver, dict):
     WebDriverWait(driver, 5).until(lambda driver : driver.find_element_by_css_selector("h1"))
 
 #   заполняем вкладку General
     driver.find_element_by_css_selector("div#tab-general label input[value='1']").click()
-    driver.find_element_by_css_selector("div#tab-general input[name='name[en]']").send_keys("My product 1")
-    driver.find_element_by_css_selector("div#tab-general input[name='code']").send_keys("p0001")
+    driver.find_element_by_css_selector("div#tab-general input[name='name[en]']").send_keys(dict['ProdName'])
+    driver.find_element_by_css_selector("div#tab-general input[name='code']").send_keys(dict['ProdCode'])
     driver.find_element_by_css_selector("div#tab-general input[name='quantity']").clear()
-    driver.find_element_by_css_selector("div#tab-general input[name='quantity']").send_keys(21)
+    driver.find_element_by_css_selector("div#tab-general input[name='quantity']").send_keys(dict['Quantity'])
 
     element = driver.find_element_by_css_selector("div#tab-general select[name='quantity_unit_id']")
     Select(element).select_by_visible_text("pcs")
 
-    driver.find_element_by_css_selector("div#tab-general input[name='new_images[]']").send_keys("C:\\no_image.png")
+    driver.find_element_by_css_selector("div#tab-general input[name='new_images[]']").send_keys(dict['ImagePath'])
 
 #   переходим на вкладку Information
     driver.find_element_by_css_selector("div.tabs a[href$=information]").click()
@@ -61,9 +63,9 @@ def Create_new_product(driver):
     element = driver.find_element_by_css_selector("div#tab-information select[name='manufacturer_id']")
     Select(element).select_by_index(1)
 
-    driver.find_element_by_css_selector("div#tab-information input[name='short_description[en]']").send_keys("description")
-    driver.find_element_by_css_selector("div#tab-information div.trumbowyg-editor").send_keys("full description")
-    driver.find_element_by_css_selector("div#tab-information input[name='head_title[en]']").send_keys("First product")
+    driver.find_element_by_css_selector("div#tab-information input[name='short_description[en]']").send_keys(dict['ShortDescr'])
+    driver.find_element_by_css_selector("div#tab-information div.trumbowyg-editor").send_keys(dict['Description'])
+    driver.find_element_by_css_selector("div#tab-information input[name='head_title[en]']").send_keys(dict['HeadTitle'])
 
 #   переходим на вкладку Prices
     driver.find_element_by_css_selector("div.tabs a[href$=prices]").click()
@@ -72,26 +74,41 @@ def Create_new_product(driver):
 
 #   заполняем вкладку Prices
     driver.find_element_by_css_selector("div#tab-prices input[name='purchase_price']").clear()
-    driver.find_element_by_css_selector("div#tab-prices input[name='purchase_price']").send_keys("12")
+    driver.find_element_by_css_selector("div#tab-prices input[name='purchase_price']").send_keys(dict['PurchasePrice'])
 
     element = driver.find_element_by_css_selector("div#tab-prices select[name='purchase_price_currency_code']")
     Select(element).select_by_value("USD")
 
     driver.find_element_by_css_selector("div#tab-prices input[name='prices[USD]']").clear()
-    driver.find_element_by_css_selector("div#tab-prices input[name='prices[USD]']").send_keys("18")
+    driver.find_element_by_css_selector("div#tab-prices input[name='prices[USD]']").send_keys(dict['PriceUSD'])
 
 #   Сохраняем созданный товар
     driver.find_element_by_css_selector("span.button-set button[name='save']").click()
 
-    prod_link = driver.find_element_by_link_text("My product 1")
+    prod_link = driver.find_element_by_link_text(dict['ProdName'])
     print(prod_link.text)
 
     assert "My product 1" == prod_link.text
 
 
 def test_Add_new_product(driver):
+    product_info = {
+        "ProdName": "My product 1",
+        "ProdCode": "p0001",
+        "Quantity": "21",
+        "ImagePath": "",
+        "ShortDescr": "description",
+        "Description": "full description",
+        "HeadTitle": "First product",
+        "PurchasePrice": "12",
+        "PriceUSD" : "18"
+    }
+
+    os.chdir(os.path.dirname(__file__))
+    product_info['ImagePath'] = os.getcwd() + "\\no_image.png"
+
     driver.get('http://localhost/litecart/admin/')
     login(driver, "admin", "admin")
     Open_add_new_product_page(driver)
-    Create_new_product(driver)
+    Create_new_product(driver, product_info)
     logout(driver)

@@ -8,6 +8,8 @@ import time
 @pytest.fixture
 def driver(request):
     wd = webdriver.Chrome()  # Optional argument, if not specified will search path.
+#    wd = webdriver.Ie()
+
     print(wd.capabilities)
 #    wd.implicitly_wait(1)
     request.addfinalizer(wd.quit)

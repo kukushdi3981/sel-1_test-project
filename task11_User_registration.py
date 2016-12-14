@@ -8,6 +8,8 @@ import random
 @pytest.fixture
 def driver(request):
     wd = webdriver.Chrome()  # Optional argument, if not specified will search path.
+#    wd = webdriver.Ie()
+
     print(wd.capabilities)
 #    wd.implicitly_wait(10)
     request.addfinalizer(wd.quit)

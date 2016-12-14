@@ -13,6 +13,8 @@ import time
 @pytest.fixture
 def driver(request):
     wd = webdriver.Chrome()  # Optional argument, if not specified will search path.
+#    wd = webdriver.Ie()
+
     print(wd.capabilities)
 #    wd.implicitly_wait(10)
     request.addfinalizer(wd.quit)
@@ -39,10 +41,10 @@ def Open_add_new_product_page(driver):
     driver.find_element_by_css_selector("div a[href$=edit_product]").click()
 
 def Create_new_product(driver, dict):
-    WebDriverWait(driver, 5).until(lambda driver : driver.find_element_by_css_selector("h1"))
+    WebDriverWait(driver, 5).until(lambda driver : driver.find_element_by_css_selector("div.tabs"))
 
 #   заполняем вкладку General
-    driver.find_element_by_css_selector("div#tab-general label input[value='1']").click()
+    driver.find_element_by_css_selector("div#tab-general label input:not([checked='checked'])").click()
     driver.find_element_by_css_selector("div#tab-general input[name='name[en]']").send_keys(dict['ProdName'])
     driver.find_element_by_css_selector("div#tab-general input[name='code']").send_keys(dict['ProdCode'])
     driver.find_element_by_css_selector("div#tab-general input[name='quantity']").clear()
@@ -64,7 +66,9 @@ def Create_new_product(driver, dict):
     Select(element).select_by_index(1)
 
     driver.find_element_by_css_selector("div#tab-information input[name='short_description[en]']").send_keys(dict['ShortDescr'])
-    driver.find_element_by_css_selector("div#tab-information div.trumbowyg-editor").send_keys(dict['Description'])
+#    driver.find_element_by_css_selector("div#tab-information div.trumbowyg-editor").send_keys(dict['Description'])
+    driver.find_element_by_css_selector("div#tab-information textarea[name='description[en]']").send_keys(dict['Description'])
+
     driver.find_element_by_css_selector("div#tab-information input[name='head_title[en]']").send_keys(dict['HeadTitle'])
 
 #   переходим на вкладку Prices
